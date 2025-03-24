@@ -21,10 +21,10 @@ export default class Card {
   _createCardElement(){
     const cardElement = createHTMLElement('div', ['card']);
     
-    const cardfrontelement = createHTMLElement('div', ['card_face', 'card_face-front', 'card_appear']);
+    const cardfrontelement = createHTMLElement('div', ['card_face', 'card_face-front', 'card_appear', 'card_hidden']);
     cardfrontelement.style.backgroundImage = `url(${this.data.sprite.pathFront})`;
 
-    const cardBackElement = createHTMLElement('div', ['card_face', 'card_face-back']);
+    const cardBackElement = createHTMLElement('div', ['card_face', 'card_face-back', 'card_show']);
     cardBackElement.style.backgroundImage =  `url(${this.data.sprite.pathBack})`;
 
     // Append the card front and back to the card element
