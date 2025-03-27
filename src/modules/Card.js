@@ -4,10 +4,12 @@ export default class Card {
 
   /**
    * @param {object} data - The data of the card
+   * @param {object} spriteSheet - The sprite sheet JSON data
    */
-  constructor(data){
+  constructor(data, spriteSheet){
     console.log(data);
     this.data = data;
+    this.spriteSheet = spriteSheet;
     this.isFlipped = false;
     this.isMatched = false;
 
@@ -21,11 +23,20 @@ export default class Card {
   _createCardElement(){
     const cardElement = createHTMLElement('div', ['card']);
     
-    const cardfrontelement = createHTMLElement('div', ['card_face', 'card_face-front', 'card_appear', 'card_hidden']);
-    cardfrontelement.style.backgroundImage = `url(${this.data.sprite.pathFront})`;
+    // get the sprite data from the sprite sheet by name of the sprite
+    const spriteData = this.spriteSheet.frames[this.data.country + '.png'];
 
-    const cardBackElement = createHTMLElement('div', ['card_face', 'card_face-back', 'card_show']);
-    cardBackElement.style.backgroundImage =  `url(${this.data.sprite.pathBack})`;
+    const { x, y, w, h } = spriteData.frame;
+    const sheetImage = this.spriteSheet.meta.image;
+
+    const cardfrontelement = createHTMLElement('div', ['card_face', 'card_face-front', 'card_appear']);
+    cardfrontelement.style.backgroundImage = `url(${sheetImage})`;
+    cardfrontelement.style.backgroundPosition = `-${x}px -${y}px`;
+    cardfrontelement.style.width = `${w}px`;
+    cardfrontelement.style.height = `${h}px`;
+
+    const cardBackElement = createHTMLElement('div', ['card_face', 'card_face-back', 'card_hidden']);
+    cardBackElement.style.backgroundImage =  `url(${this.data.backImage})`;
 
     // Append the card front and back to the card element
     cardElement.appendChild(cardfrontelement);
@@ -73,8 +84,15 @@ export default class Card {
    */
   _updateData(newData){
     this.data = newData;
-    this.element.querySelector('.card_face-front')
-    .style.backgroundImage = `url(${this.data.sprite.pathFront})`;
+    const spriteData = this.spriteSheet.frames[this.data.spriteName];
+    const { x, y, w, h } = spriteData.frame;
+    const sheetImage = this.spriteSheet.meta.image;
+
+    const frontFace = this.element.querySelector('.card_face-front');
+    frontFace.style.backgroundImage = `url(${sheetImage})`;
+    frontFace.style.backgroundPosition = `-${x}px -${y}px`;
+    frontFace.style.width = `${w}px`;
+    frontFace.style.height = `${h}px`;
   }
 
 }

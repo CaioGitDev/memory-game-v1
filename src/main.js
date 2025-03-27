@@ -9,17 +9,17 @@ document.querySelector('#app').innerHTML = `
   `;
 
 
-const button = document.getElementById('btn-modal');
+// const button = document.getElementById('btn-modal');
 
-const modal = document.getElementById('modal');
+// const modal = document.getElementById('modal');
 
-button.addEventListener('click', () => {
-  modal.showModal();
-});
+// button.addEventListener('click', () => {
+//   modal.showModal();
+// });
 
-const modal2 = new Modal('Modal Title', 'Modal Body', 'Modal Footer');
-document.body.appendChild(modal2.element);
-modal2.show();
+// const modal2 = new Modal('Modal Title', 'Modal Body', 'Modal Footer');
+// document.body.appendChild(modal2.element);
+// modal2.show();
 
 const board = new Board(document.querySelector('#board'), CardsDefinition);
 board._init();

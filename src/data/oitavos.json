@@ -154,7 +154,7 @@
 	"meta": {
 		"app": "http://www.codeandweb.com/texturepacker",
 		"version": "1.0",
-		"image": "oitavos.png",
+		"image": "../../public/assets/oitavos.png",
 		"format": "RGBA8888",
 		"size": {
 			"w": 312,
