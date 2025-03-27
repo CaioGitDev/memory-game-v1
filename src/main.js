@@ -22,4 +22,3 @@ document.querySelector('#app').innerHTML = `
 // modal2.show();
 
 const board = new Board(document.querySelector('#board'), CardsDefinition);
-board._init();

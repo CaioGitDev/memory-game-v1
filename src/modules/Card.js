@@ -6,46 +6,85 @@ export default class Card {
    * @param {object} data - The data of the card
    * @param {object} spriteSheet - The sprite sheet JSON data
    */
-  constructor(data, spriteSheet){
-    console.log(data);
+  constructor(data, spriteSheet) {
+    this.identifier = data.identifier;
     this.data = data;
     this.spriteSheet = spriteSheet;
     this.isFlipped = false;
     this.isMatched = false;
 
+    this.spriteSheetBack = this.spriteSheet.frames['back.png'];
+
     this.element = this._createCardElement();
   }
 
   /**
-   * Create the card element
-   * @returns {HTMLElement} The card element
-   */
-  _createCardElement(){
+ * create a card element
+ * @returns {HTMLElement} card element
+ */
+  _createCardElement() {
     const cardElement = createHTMLElement('div', ['card']);
-    
-    // get the sprite data from the sprite sheet by name of the sprite
-    const spriteData = this.spriteSheet.frames[this.data.country + '.png'];
-
-    const { x, y, w, h } = spriteData.frame;
     const sheetImage = this.spriteSheet.meta.image;
+    const { country } = this.data;
+    const spriteData = this.spriteSheet.frames[`${country}.png`];
+    const { x, y, w, h } = spriteData.frame;
 
-    const cardfrontelement = createHTMLElement('div', ['card_face', 'card_face-front', 'card_appear']);
-    cardfrontelement.style.backgroundImage = `url(${sheetImage})`;
-    cardfrontelement.style.backgroundPosition = `-${x}px -${y}px`;
-    cardfrontelement.style.width = `${w}px`;
-    cardfrontelement.style.height = `${h}px`;
+    // creates a front face using the sprite corresponding to the country
+    const cardFrontElement = this._createFaceElement(
+      ['card_face', 'card_face-front', 'card_hidden'],
+      sheetImage,
+      x,
+      y,
+      w,
+      h
+    );
 
-    const cardBackElement = createHTMLElement('div', ['card_face', 'card_face-back', 'card_hidden']);
-    cardBackElement.style.backgroundImage =  `url(${this.data.backImage})`;
+    // create a back face using the default back sprite
+    const {
+      x: backX,
+      y: backY,
+      w: backW,
+      h: backH
+    } = this.spriteSheetBack.frame;
 
-    // Append the card front and back to the card element
-    cardElement.appendChild(cardfrontelement);
+    const cardBackElement = this._createFaceElement(
+      ['card_face', 'card_face-back', 'card_appear'],
+      sheetImage,
+      backX,
+      backY,
+      backW,
+      backH
+    );
+
+    cardElement.appendChild(cardFrontElement);
     cardElement.appendChild(cardBackElement);
 
-    // Add a click event to the card element
-    cardElement.addEventListener('click', () => this._flipCard());
+    // add click event listener to the card
+    cardElement.addEventListener('click', () => {
+      if (!this.isFlipped)
+        this._flipCard();
+    });
 
     return cardElement;
+  }
+
+  /**
+ * create a face element for the card
+ * @param {string[]} classes - classes to be added to the element
+ * @param {string} backgroundImage - URL of the background image
+ * @param {number} x - x position of the sprite
+ * @param {number} y - y position of the sprite
+ * @param {number} width - width of the element
+ * @param {number} height - height of the element
+ * @return {HTMLElement} The created element
+ */
+  _createFaceElement(classes, backgroundImage, x, y, width, height) {
+    const faceElement = createHTMLElement('div', classes);
+    faceElement.style.backgroundImage = `url(${backgroundImage})`;
+    faceElement.style.backgroundPosition = `-${x}px -${y}px`;
+    faceElement.style.width = `${width}px`;
+    faceElement.style.height = `${height}px`;
+    return faceElement;
   }
 
   /**
@@ -53,8 +92,8 @@ export default class Card {
    * if the card is matched, the card will not do anything
    * @returns {void}
    */
-  _flipCard(){
-    if(this.isMatched) return;
+  _flipCard() {
+    if (this.isMatched) return;
     this.isFlipped = !this.isFlipped;
     this.element.classList.toggle('flipped', this.isFlipped);
   }
@@ -63,7 +102,7 @@ export default class Card {
    * Match the card
    * @returns {void}
    */
-  _matchCard(){
+  _matchCard() {
     this.isMatched = true;
     this.element.classList.add('matched');
   }
@@ -72,7 +111,7 @@ export default class Card {
    * Hide card
    * @returns {void}
    */
-  _hideCard(){
+  _hideCard() {
     this.isFlipped = false;
     this.element.classList.remove('flipped');
   }
@@ -82,7 +121,7 @@ export default class Card {
    * @param {object} data - The card data
    * @returns {void}
    */
-  _updateData(newData){
+  _updateData(newData) {
     this.data = newData;
     const spriteData = this.spriteSheet.frames[this.data.spriteName];
     const { x, y, w, h } = spriteData.frame;
