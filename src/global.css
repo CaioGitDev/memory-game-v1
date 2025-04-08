@@ -54,7 +54,7 @@ FIM CONFIGURAÇÕES GLOBAIS DE CSS
 
 */
 
-/*grid 3x3 para cada elemento do board*/
+/*grid 4x4 para cada elemento do board*/
 .board {
   
   display: grid;
@@ -124,7 +124,7 @@ FIM CONFIGURAÇÕES GLOBAIS DE CSS
 
 /* card animation to appear on board, sequential */
 .card_appear {
-  animation: appear 0.5s forwards;
+  /* animation: appear 0.5s forwards; */
 }
 
 @keyframes appear {

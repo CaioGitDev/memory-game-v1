@@ -1,5 +1,4 @@
-import Board from './modules/Board.js';
-import CardsDefinition from './data/cards.d.js';
+import Game from './modules/Game.js';
 import Modal from './modules/Modal.js';
 
 document.querySelector('#app').innerHTML = `
@@ -21,4 +20,5 @@ document.querySelector('#app').innerHTML = `
 // document.body.appendChild(modal2.element);
 // modal2.show();
 
-const board = new Board(document.querySelector('#board'), CardsDefinition);
+const game = new Game();
+game.init();

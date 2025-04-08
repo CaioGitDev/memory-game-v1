@@ -31,7 +31,7 @@ export default class Card {
 
     // creates a front face using the sprite corresponding to the country
     const cardFrontElement = this._createFaceElement(
-      ['card_face', 'card_face-front', 'card_hidden'],
+      ['card_face', 'card_face-front', 'card_appear'],
       sheetImage,
       x,
       y,
@@ -48,7 +48,7 @@ export default class Card {
     } = this.spriteSheetBack.frame;
 
     const cardBackElement = this._createFaceElement(
-      ['card_face', 'card_face-back', 'card_appear'],
+      ['card_face', 'card_face-back', 'card_hidden'],
       sheetImage,
       backX,
       backY,
@@ -58,12 +58,6 @@ export default class Card {
 
     cardElement.appendChild(cardFrontElement);
     cardElement.appendChild(cardBackElement);
-
-    // add click event listener to the card
-    cardElement.addEventListener('click', () => {
-      if (!this.isFlipped)
-        this._flipCard();
-    });
 
     return cardElement;
   }
@@ -87,16 +81,6 @@ export default class Card {
     return faceElement;
   }
 
-  /**
-   * Flip the card
-   * if the card is matched, the card will not do anything
-   * @returns {void}
-   */
-  _flipCard() {
-    if (this.isMatched) return;
-    this.isFlipped = !this.isFlipped;
-    this.element.classList.toggle('flipped', this.isFlipped);
-  }
 
   /**
    * Match the card
@@ -121,17 +105,14 @@ export default class Card {
    * @param {object} data - The card data
    * @returns {void}
    */
-  _updateData(newData) {
-    this.data = newData;
-    const spriteData = this.spriteSheet.frames[this.data.spriteName];
-    const { x, y, w, h } = spriteData.frame;
-    const sheetImage = this.spriteSheet.meta.image;
+  _updateData() {    
+    // this.identifier = newData.identifier;
+    // this.spriteSheet = newData.spriteSheet;
+    this.spriteSheetBack = this.spriteSheet.frames['back.png'];
+    this.element = this._createCardElement();
 
-    const frontFace = this.element.querySelector('.card_face-front');
-    frontFace.style.backgroundImage = `url(${sheetImage})`;
-    frontFace.style.backgroundPosition = `-${x}px -${y}px`;
-    frontFace.style.width = `${w}px`;
-    frontFace.style.height = `${h}px`;
+    return this.element;
+
   }
 
 }
