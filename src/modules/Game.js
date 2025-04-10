@@ -35,8 +35,19 @@ export default class Game {
     const cardsData = this.getCardsData();
     // create board instance
     this.board = new Board(boardElement, cardsData, cardFactory);
-    // add game cicle
-    this.startGame();
+    this.board.preloadCards();
+
+    // add event listener to btn-start-game
+    const btnStartGame = document.querySelector('#btn-start-game');
+    btnStartGame.addEventListener('click', () => {
+      this.board.init();
+      // remove start game button
+      btnStartGame.remove();
+      // start game
+      this.startGame();
+    });
+    // // add game cicle
+    // this.startGame();
 
   }
 

@@ -23,7 +23,6 @@ export default class Board {
     this.matchedCards = [];
     this.cards = [];
 
-    this.init();
   }
 
   /**
@@ -41,6 +40,23 @@ export default class Board {
     });
 
     this.animateShuffle();
+  }
+
+  /**
+   * this function will preload whe cards waiting for the user start the game.
+   * @returns {void}
+   */
+  preloadCards() {
+    this.clearBoard();
+    const shuffledCards = this.shuffleCards(this.cardsDataArray);
+
+    shuffledCards.forEach(cardData => {
+      const card = this.createCard(cardData);
+      this.cards.push(card);
+      this.flipCard(card.element)
+      // disable the card click event
+      this.container.appendChild(card.element);
+    });
   }
 
   /**

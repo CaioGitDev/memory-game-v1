@@ -1,26 +1,32 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="stylesheet" href="/src/global.css" />
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Memory Game</title>
-  </head>
-  <body>
-    <div id="app"></div>
+  <link rel="stylesheet" href="/src/global.css" />
 
-    <!-- modal with dialog tag -->
-    <dialog id="modal" class="modal">
-      <div class="modal-content">
-        <h2>Memory Game</h2>
-        <p>Click on the cards to find the matching pairs.</p>
-        <button id="start-game">Start Game</button>
-      </div>
-    </dialog>
+  <title>Memory Game</title>
+</head>
 
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<body>
+  <header>
+    <span>
+      <h1 class="title">JOGO DA MEMORIA</h1>
+      <h1 class="title">UEFA EURO 2016</h1>
+    </span>
+  </header>
+  <div id="app"></div>
+  <div class="start-game-container">
+    <div class="start-game-text">
+      <button id="btn-start-game" class="start-game-button btn btn-5">
+        <span>START GAME</span>  
+      </button>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>
