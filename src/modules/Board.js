@@ -1,136 +1,150 @@
-import Card from './Card.js';
 import data from '../data/data.js';
+import Shuffle from '../utils/shuffle.js';
 
+/**
+ * Class representing a game board. this class is responsible for the game board and its logic.
+ * It handles the game state, cards, and game logic.
+ * @class Board
+ */
 export default class Board {
   /**
-   * @param {HTMLElement} container - The container of the board
-   * @param {Array} cards - The cards to be added to the board
+   * Creates an instance of Board.
+   * @param {HTMLElement} container - The HTML element representing the game board.
+   * @param {Array} cards - The data for the cards to be used in the game.
+   * @param {Function} cardFactory - A factory function to create card instances.
    */
-  constructor(container, cards) {
+  constructor(container, cards, cardFactory){
     this.container = container;
-    // Create an array with the cards duplicated
-    this.cardDataArray = [
-      ...cards,
-      ...cards
-    ];
-    this._flippedCards = [];
-    this._matchedCards = [];
+    this.cardsDataArray = [...cards, ...cards];// ... this is the spread operator, it creates a shallow copy of the array
+    this.cardFactory = cardFactory;
 
+    // controll variables
+    this.flippedCards = [];
+    this.matchedCards = [];
     this.cards = [];
 
-    this._init();
+    this.init();
   }
 
   /**
-   * Initialize the board
+   * Initializes the game board: shuffles, creates and renders cards.
    * @returns {void}
    */
-  _init() {
+  init(){
+    this.clearBoard();
+    const shuffledCards = this.shuffleCards(this.cardsDataArray);
 
-    // Shuffle the cards
-    const shuffledCards = this._shuffleCards(this.cardDataArray);
-
-    // clean container before adding cards
-    this.container.innerHTML = '';
-    this.cards = [];
-
-
-    // Create the card instances and add them to the container
     shuffledCards.forEach(cardData => {
-      const card = new Card(cardData, data);
-      const cardContainer = card.element;
-      // get childs from card element container
-
-
-      cardContainer.addEventListener('click', () => {
-
-        if (card.isFlipped || card.isMatched ||
-          // or flipped cards are already two
-          this._flippedCards.length === 2
-          ) return;
-
-        card.isFlipped = true;
-        this._flipCard(cardContainer);
-        this._flippedCards.push(card);
-
-      })
-
+      const card = this.createCard(cardData);
       this.cards.push(card);
       this.container.appendChild(card.element);
-
     });
 
-    this._shuffledCardsControll();
+    this.animateShuffle();
   }
 
   /**
-   * Flip the card, toggle class card_hidden to card_appear
+   * Clears the container and resets the cards array.
    * @returns {void}
-   **/
-  _flipCard(cardElement){
-
-    const cardFrontElement = cardElement.querySelector('.card_face-front');
-    const cardBackElement = cardElement.querySelector('.card_face-back');
-
-    cardFrontElement.classList.toggle('card_hidden');
-    cardFrontElement.classList.toggle('card_appear');
-    cardBackElement.classList.toggle('card_hidden');
-    cardBackElement.classList.toggle('card_appear');
-
+   */
+  clearBoard() {
+    this.container.innerHTML = '';
+    this.cards = [];
   }
-
 
   /**
-   * Shuffle the cards
-   * @param {Array} cards - The cards to be shuffled
-   * @returns {Array} The shuffled cards
+   * Creates a new card and attaches click handler.
+   * @param {Object} cardData - The data used to create a card.
+   * @returns {Card}
    */
-  _shuffleCards(cards) {
+  createCard(cardData) {
+    const card = this.cardFactory(cardData, data);
 
-    let currentIndex = cards.length, temporaryValue, randomIndex;
-
-    // While there remain elements to shuffle...
-    while (0 !== currentIndex) {
-      // Pick a random element
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-
-      // And swap it with the current element
-      temporaryValue = cards[currentIndex];
-      cards[currentIndex] = cards[randomIndex];
-      cards[randomIndex] = temporaryValue;
-    }
-
-    return cards;
+    // Attach click event listener to the card element
+    card.element.addEventListener('click', () => {
+      this.handleCardClick(card);
+    }); // Depuração
+    return card;
   }
 
-  // crie uma funcao que execute durante 3 segundos o embaralhar das cartas 
-  // de forma aleatorio e visual, atualizando o container do board a cada 100ms
-  _shuffledCardsControll() {
-    let count = 0;
-    const interval = setInterval(() => {
-      this._reshuffle();
-      count++;
-      if (count === 10) {
-        clearInterval(interval);
-        
+  /**
+   * Handles card click logic.
+   * This method is responsible check if the card is already flipped or matched, and if two cards are already flipped.
+   * If not, it flips the card and adds it to the flippedCards array.
+   * @param {Card} card - The clicked card instance.
+   * @returns {void}
+   */
+  handleCardClick(card) {
+    const { element } = card;
+
+    if(card.isFlipped || card.isMatched || this.flippedCards.length === 2) return;
+
+    card.isFlipped = true;
+    this.flipCard(element);
+    this.flippedCards.push(card);
+  }
+
+  /**
+   * Flips the visual representation of a card element.
+   * this method is responsible for toggling the classes of the card element to show the front or back side.
+   * * @param {HTMLElement} cardContainer - DOM element of the card.
+   * @returns {void}
+   */
+  flipCard(cardContainer) {
+
+    const classesToToggle = ['card_hidden', 'card_appear'];
+    const frontCard = cardContainer.querySelector('.card_face-front');
+    const backCard = cardContainer.querySelector('.card_face-back');
+
+    classesToToggle.forEach(className => {
+      frontCard.classList.toggle(className);
+      backCard.classList.toggle(className);
+    });
+  }
+
+  /**
+   * Shuffles an array of cards using Fisher-Yates algorithm.
+   * Uses the Shuffle utility to shuffle the cards.
+   * More documentation on Fisher-Yates shuffle can be found at:
+   * https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+   * @param {Array} cards - The cards to shuffle.
+   * @returns {Array} The shuffled array.
+   */
+  shuffleCards(cards) {
+    return Shuffle.FisherYates(cards);
+  }
+
+  /**
+   * Simulates a visual shuffle animation by reshuffling the cards and flipping them back to their original state.
+   * a fixed number of times with a delay between each reshuffle.
+   * @param {number} iterations - Number of times to reshuffle (default: 10)
+   * @param {number} intervalMs - Time between reshuffles in milliseconds (default: 200)
+   * @returns {void}
+   */
+  animateShuffle(iterations = 10, intervalMs = 200){
+    let currentIteration = 0;
+
+    const shuffleInterval = setInterval(() => {
+      this.reshuffleUnmatchedCards();
+      currentIteration++;
+
+      if(currentIteration >= iterations){
+        clearInterval(shuffleInterval);
+
+        // await a moment before flipping cards to finalize animation
         setTimeout(() => {
-          
-          this.cards.forEach(card => {
-            this._flipCard(card.element);
-          });
-          this._updateBoard();
-          
+          this.cards.forEach(card => this.flipCard(card.element));
+          this.updateBoard();
         }, 1000);
       }
-    }, 200);
+    }, intervalMs);
   }
 
   /**
-   * Update the board if needed
-   * @returns {void}
-  */
-  _updateBoard() {
+   * Updates the board container with the corrent cards elements
+   * * @returns {void}
+   */
+  updateBoard() {
     this.container.innerHTML = '';
     this.cards.forEach(card => {
       this.container.appendChild(card.element);
@@ -138,29 +152,33 @@ export default class Board {
   }
 
   /**
-   * reshuflle the cards that have not yet been matched
+   * Reshuffles only the unmatched cards, keeping the matched ones in their original positions.
    * @returns {void}
    */
-  _reshuffle() {
-    
-    // filter cards that are not matched
-    const unMatchedCards = this.cards.filter(card => !card.isMatched);
-    
-    this.cards = [];
+  reshuffleUnmatchedCards(){
+    // get the indexes of the unmatched cards
+    const unmatchedCardsIndexes = this.cards
+    .map((card, index) => !card.isMatched ? index : null)
+    .filter(index => index !== null);
 
-    // shuffle the data
-    const shuffledData = this._shuffleCards(unMatchedCards);
-    // update the card data
-    shuffledData.forEach((card, index) => {
+    // get the unmatched cards
+    const unmatchedCards = unmatchedCardsIndexes.map(index => this.cards[index]);
 
-      this.cards.push(card);
-      this.container.appendChild(card.element);
+    // shuffle the unmatched cards
+    const shuffledUnmatchedCards = this.shuffleCards([...unmatchedCards]);
 
-      const newCard = card._updateData();
-      card.element = newCard;
+    // creates a new array with the shuffled unmatched cards and the matched ones
+    const updatedCards = [...this.cards];
+    unmatchedCardsIndexes.forEach((index, i) => {
+      updatedCards[index] = shuffledUnmatchedCards[i];
     });
 
-    // update the board
-    this._updateBoard();
+    // updates the DOM with the shuffled unmatched cards keeping the matched ones in their original positions
+    this.container.innerHTML = '';
+    updatedCards.forEach(card => {
+      this.container.appendChild(card.element);
+    });
+
+    this.cards = updatedCards;
   }
 }

@@ -1,4 +1,5 @@
 import Board from './Board.js';
+import Card from './Card.js';
 import CardsDefinition from '../data/cards.d.js';
 
 export default class Game {
@@ -16,6 +17,8 @@ export default class Game {
         FPS:  1000 / 1,
       }
     }
+
+   
   }
 
   /**
@@ -23,13 +26,15 @@ export default class Game {
    * @returns {void} 
    */
   init(){
+     // Factory para permitir inversão de dependências (DIP)
+     const cardFactory = (cardData, sharedData) => new Card(cardData, sharedData);
 
     // get board element
     const boardElement = document.querySelector('#board');
     // get cards data
     const cardsData = this.getCardsData();
     // create board instance
-    this.board = new Board(boardElement, cardsData);
+    this.board = new Board(boardElement, cardsData, cardFactory);
     // add game cicle
     this.startGame();
 
@@ -90,11 +95,10 @@ export default class Game {
    * @returns {void}
    */
   checkFlippedCards(){
-    const flippedCards = this.board._flippedCards;
+    const flippedCards = this.board.flippedCards;
   
     const [card1, card2] = flippedCards;
 
-    console.log(card1, card2)
 
     // check if two cards are flipped
     if(flippedCards.length === 2){
@@ -105,9 +109,9 @@ export default class Game {
           this._toggleProp(card1, "isMatched");
           this._toggleProp(card2, "isMatched");
 
-         this.board._matchedCards = [card1, card2, ...this.board._matchedCards]
+         this.board.matchedCards = [card1, card2, ...this.board.matchedCards]
 
-          this.board._flippedCards = [];
+          this.board.flippedCards = [];
         }, 500);
         
       }else{
@@ -116,10 +120,10 @@ export default class Game {
           this._toggleProp(card1, "isFlipped");
           this._toggleProp(card2, "isFlipped");
 
-          this.board._flipCard(card1.element);
-          this.board._flipCard(card2.element);
+          this.board.flipCard(card1.element);
+          this.board.flipCard(card2.element);
 
-          this.board._flippedCards = [];
+          this.board.flippedCards = [];
         }, 500);
       }
     }
