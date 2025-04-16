@@ -7,6 +7,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="stylesheet" href="/src/global.css" />
+  <link rel="stylesheet" href="src/components/modal/modal.css" />
+  <link rel="stylesheet" href="src/components/progressBar/progressBar.css" />
 
   <title>Memory Game</title>
 </head>
@@ -21,9 +23,14 @@
   <div id="app"></div>
   <div class="start-game-container">
     <div class="start-game-text">
-      <button id="btn-start-game" class="start-game-button btn btn-5">
+      <button id="btn-start-restart" class="btn btn-restart">
+        <span>Reiniciar</span>  
+      </button>
+
+      <button id="btn-start-game" class="start-game-button btn btn-start">
         <span>START GAME</span>  
       </button>
+    
     </div>
   </div>
   <script type="module" src="/src/main.js"></script>

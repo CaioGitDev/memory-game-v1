@@ -23,6 +23,9 @@ export default class Board {
     this.matchedCards = [];
     this.cards = [];
 
+    // this flag is used to check if the game is started or not
+    // and to prevent the user from clicking on the cards before the game starts    
+    this.isGameStarted = false;
   }
 
   /**
@@ -30,6 +33,8 @@ export default class Board {
    * @returns {void}
    */
   init(){
+    this.isGameStarted = true;
+
     this.clearBoard();
     const shuffledCards = this.shuffleCards(this.cardsDataArray);
 
@@ -77,9 +82,11 @@ export default class Board {
     const card = this.cardFactory(cardData, data);
 
     // Attach click event listener to the card element
-    card.element.addEventListener('click', () => {
-      this.handleCardClick(card);
-    }); // Depuração
+    if(this.isGameStarted) {
+      card.element.addEventListener('click', () => {
+        this.handleCardClick(card);
+      }); 
+    }
     return card;
   }
 

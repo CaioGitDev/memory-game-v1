@@ -1,0 +1,91 @@
+:root {
+  font-size: 16px; /* Base: 1rem = 16px */
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  inset: 0;
+  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #1e272e;
+  margin: 10% auto;
+  width: fit-content;
+
+  border: 0.125rem solid #00c2d4;
+  border-radius: 0.9375rem;
+  box-shadow: 0 0 0.625rem #00c2d4;
+  font-family: 'Press Start 2P', cursive;
+  color: #ffffff;
+  overflow: hidden;
+}
+
+/* Header */
+.modal-header {
+  padding: 1rem 1.5rem;
+  background-color: #263238;
+  border-bottom: 0.0625rem solid #00c2d4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 0.875rem;
+}
+
+.close-btn {
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close-btn:hover {
+  color: #ff7675;
+}
+
+/* Body */
+.modal-body {
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+}
+
+.modal-body p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  letter-spacing: 0.2rem;
+  margin-bottom: 1rem;
+}
+
+.modal-message {
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 0.0625rem solid #00c2d4;
+  background-color: #263238;
+  text-align: center;
+}
+
+.modal-button {
+  background-color: #00c2d4;
+  color: #1e272e;
+  padding: 0.625rem 1.25rem;
+  border: none;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.75rem;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal-button:hover {
+  background-color: #00a3b5;
+}

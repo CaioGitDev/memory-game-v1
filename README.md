@@ -34,3 +34,5 @@
 
 ## TO DO
 - [x] Ler e compreender integralmente o regulamento e os critérios do trabalho.
+- [ ] Add sons
+
