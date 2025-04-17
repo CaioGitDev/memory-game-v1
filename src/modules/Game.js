@@ -1,6 +1,8 @@
 import Board from './Board.js';
 import Card from './Card.js';
 import CardsDefinition from '../data/cards.d.js';
+import { Modal } from '../components/modal/modal.js';
+import { ProgressBar } from '../components/progressBar/progressBar.js';
 
 export default class Game {
   constructor(){
@@ -8,6 +10,9 @@ export default class Game {
     this.board = null;
     this._gameStarted = false;
     this._gameEnded = false;
+
+    this.progressBar = null;
+    this.modal = null;
 
     this._timeHandler = null;
 
@@ -37,17 +42,26 @@ export default class Game {
     this.board = new Board(boardElement, cardsData, cardFactory);
     this.board.preloadCards();
 
+    this.progressBar = new ProgressBar(45, () => {}, () => {
+      console.log("Progress bar ended");
+      this.board.animateShuffle();
+     
+    });
+    
+
     // add event listener to btn-start-game
     const btnStartGame = document.querySelector('#btn-start-game');
     btnStartGame.addEventListener('click', () => {
       this.board.init();
       // remove start game button
       btnStartGame.remove();
+
+      // start progress bar
+      this.progressBar.start();
+
       // start game
       this.startGame();
     });
-    // // add game cicle
-    // this.startGame();
 
   }
 

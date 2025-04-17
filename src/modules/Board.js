@@ -58,7 +58,7 @@ export default class Board {
     shuffledCards.forEach(cardData => {
       const card = this.createCard(cardData);
       this.cards.push(card);
-      this.flipCard(card.element)
+      this.flipCard(card.element, false); 
       // disable the card click event
       this.container.appendChild(card.element);
     });
@@ -103,26 +103,32 @@ export default class Board {
     if(card.isFlipped || card.isMatched || this.flippedCards.length === 2) return;
 
     card.isFlipped = true;
-    this.flipCard(element);
+    this.flipCard(element, true);
     this.flippedCards.push(card);
   }
 
-  /**
+    /**
    * Flips the visual representation of a card element.
-   * this method is responsible for toggling the classes of the card element to show the front or back side.
-   * * @param {HTMLElement} cardContainer - DOM element of the card.
-   * @returns {void}
+   * @param {HTMLElement} cardContainer - DOM element of the card.
+   * @param {boolean} showFront - Whether to show the front (true) or back (false) of the card.
    */
-  flipCard(cardContainer) {
-
-    const classesToToggle = ['card_hidden', 'card_appear'];
+  flipCard(cardContainer, showFront) {
     const frontCard = cardContainer.querySelector('.card_face-front');
     const backCard = cardContainer.querySelector('.card_face-back');
 
-    classesToToggle.forEach(className => {
-      frontCard.classList.toggle(className);
-      backCard.classList.toggle(className);
-    });
+    if (showFront) {
+      frontCard.classList.remove('card_hidden');
+      frontCard.classList.add('card_appear');
+
+      backCard.classList.remove('card_appear');
+      backCard.classList.add('card_hidden');
+    } else {
+      frontCard.classList.remove('card_appear');
+      frontCard.classList.add('card_hidden');
+
+      backCard.classList.remove('card_hidden');
+      backCard.classList.add('card_appear');
+    }
   }
 
   /**
@@ -151,12 +157,21 @@ export default class Board {
       this.reshuffleUnmatchedCards();
       currentIteration++;
 
+      this.cards.forEach(card => {
+        if (!card.isMatched) {
+          this.flipCard(card.element, true); // mostra a frente
+        }
+      });
+
       if(currentIteration >= iterations){
         clearInterval(shuffleInterval);
 
         // await a moment before flipping cards to finalize animation
         setTimeout(() => {
-          this.cards.forEach(card => this.flipCard(card.element));
+          this.cards.forEach(card => {
+            if(card.isMatched) return;
+            this.flipCard(card.element, false);
+          });
           this.updateBoard();
         }, 1000);
       }

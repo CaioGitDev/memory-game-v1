@@ -44,7 +44,13 @@ export class ProgressBar {
     container.appendChild(this.progressBarLabelElement);
     container.appendChild(bar);
 
-    document.body.appendChild(container);
+    // append before #app
+
+    const appContainer = document.querySelector('#app');
+    if (appContainer) {
+      appContainer.insertAdjacentElement('beforebegin', container);
+    }
+    
   }
 
   /**
