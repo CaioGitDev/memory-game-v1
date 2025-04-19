@@ -105,6 +105,9 @@ export default class Game {
       clearInterval(this.#intervalHandler);
       this.#progressBar.stop();
 
+      this.winSound.currentTime = 0;
+      this.winSound.play();
+
       const duration = this.#progressBar.getTotalElapsed();
       const clicks = this.#board.clickCount;
 
