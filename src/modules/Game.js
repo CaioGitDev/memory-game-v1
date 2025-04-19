@@ -10,26 +10,26 @@ import { GameHistory } from '../components/game-history/game-history.js';
  */
 export default class Game {
   #board;
-  #gameStarted = false;
-  #gameEnded = false;
-  #intervalHandler = null;
   #progressBar;
   #modal;
   #flipBackSound;
+  #gameStarted = false;
+  #gameEnded = false;
+  #intervalHandler = null;
+  #history;
 
   /**
-   * Initializes and starts the game.
+   * Initializes the game, UI, and binds events.
    */
   init() {
-    const backgroundMusic = new Audio('../../../public/sounds/euro2016.mp3');
+    const music = new Audio('../../../public/sounds/euro2016.mp3');
+    music.loop = true;
+    music.volume = 0.2;
+
     const winSound = new Audio('../../../public/sounds/golo.mp3');
-    this.flipBackSound = new Audio('../../../public/sounds/esconder.mp3');
-    backgroundMusic.loop = true;
-    backgroundMusic.volume = 0.2;
-    
+    this.#flipBackSound = new Audio('../../../public/sounds/esconder.mp3');
 
     const cardFactory = (cardData, sharedData) => new Card(cardData, sharedData);
-
     const boardElement = document.querySelector('#board');
     const cardsData = this.#getCardsData();
 
@@ -39,48 +39,44 @@ export default class Game {
     this.#progressBar = new ProgressBar(
       45,
       () => {},
-      () => {
-        this.#board.animateShuffle();
-      }
+      () => this.#board.animateShuffle()
     );
 
     this.#modal = new Modal();
 
     const startButton = document.querySelector('#btn-start-game');
     startButton.addEventListener('click', () => {
-      this.#board.init();
-      startButton.style.display = 'none';
-      this.#progressBar.start();
-      this.#startGameLoop();
-      backgroundMusic.play();
+      this.#startGame(startButton, music);
     });
 
-    this.history = new GameHistory('game_history', 10);
-    this.history.mount(document.querySelector('#history'));
-    
+    this.#history = new GameHistory('game_history', 10);
+    this.#history.mount(document.querySelector('#history'));
 
-    // add event listener to keyboard space key to reset the game
     document.addEventListener('keydown', (event) => {
-      console.log(event.code);
       if (event.code === 'Space') {
         this.#resetGame();
-        backgroundMusic.pause();
-        backgroundMusic.currentTime = 0;
+        music.pause();
+        music.currentTime = 0;
         startButton.style.display = 'block';
       }
     });
   }
 
   /**
-   * Returns card definitions loaded from the data source.
-   * @returns {Array}
+   * Starts the game logic and audio.
+   * @param {HTMLElement} button - Start game button.
+   * @param {HTMLAudioElement} music - Background music.
    */
-  #getCardsData() {
-    return CardsDefinition;
+  #startGame(button, music) {
+    this.#board.init();
+    this.#progressBar.start();
+    this.#startGameLoop();
+    music.play();
+    button.style.display = 'none';
   }
 
   /**
-   * Starts the game loop with a fixed frame rate.
+   * Starts the game loop at fixed intervals.
    */
   #startGameLoop() {
     const FPS = 1000 / 1;
@@ -93,7 +89,7 @@ export default class Game {
   }
 
   /**
-   * Game loop executed at regular intervals.
+   * The main game loop executed each frame.
    */
   #gameLoop() {
     this.#checkFlippedCards();
@@ -101,7 +97,7 @@ export default class Game {
   }
 
   /**
-   * Checks whether the player has matched all cards and ends the game if true.
+   * Checks whether the player has won.
    */
   #checkWin() {
     if (this.#board.cards.length === this.#board.matchedCards.length) {
@@ -109,67 +105,77 @@ export default class Game {
       clearInterval(this.#intervalHandler);
       this.#progressBar.stop();
 
-      const elapsed = this.#progressBar.getTotalElapsed();
+      const duration = this.#progressBar.getTotalElapsed();
       const clicks = this.#board.clickCount;
-      this.history.addRecord({
+
+      this.#history.addRecord({
         date: new Date().toISOString(),
-        duration: elapsed,
-        clicks: clicks
+        duration,
+        clicks
       });
 
-      this.#modal.open('Parabéns!', `Ganhou em ${elapsed} segundos!`);
-      this.#modal.onContinue(() => {
-        this.#resetGame();
-      });
+      this.#modal.open('Parabéns!', `Ganhou em ${duration} segundos!`);
+      this.#modal.onContinue(() => this.#resetGame());
     }
   }
 
   /**
-   * Handles logic when two cards are flipped.
+   * Handles flipped card comparison and matching.
    */
   #checkFlippedCards() {
     const [card1, card2] = this.#board.flippedCards;
 
     if (!card1 || !card2) return;
 
+    const resetFlipped = () => {
+      this.#board.flippedCards = [];
+    };
+
     if (card1.identifier === card2.identifier) {
       setTimeout(() => {
         this.#setCardProps([card1, card2], 'isMatched', true);
         this.#board.matchedCards = [card1, card2, ...this.#board.matchedCards];
-        this.#board.flippedCards = [];
+        resetFlipped();
       }, 500);
     } else {
       setTimeout(() => {
         this.#setCardProps([card1, card2], 'isFlipped', false);
         this.#board.flipCard(card1.element, false);
         this.#board.flipCard(card2.element, false);
-        this.#board.flippedCards = [];
-
-        this.flipBackSound.play();
+        this.#flipBackSound.play();
+        resetFlipped();
       }, 500);
     }
   }
 
   /**
-   * Sets a given property on one or more cards.
-   * @param {Array} cards - The cards to update.
-   * @param {string} prop - The property to update.
-   * @param {any} value - The value to assign.
+   * Sets a property to a given value on multiple cards.
+   * @param {Array} cards - Array of card objects.
+   * @param {string} prop - Property name.
+   * @param {any} value - Value to assign.
    */
   #setCardProps(cards, prop, value) {
-    for (const card of cards) {
+    cards.forEach(card => {
       card[prop] = value;
-    }
+    });
   }
 
   /**
-   * Resets the game to the initial state.
+   * Returns the cards data from the definitions.
+   * @returns {Array}
+   */
+  #getCardsData() {
+    return CardsDefinition;
+  }
+
+  /**
+   * Resets the board and game state to initial.
    */
   #resetGame() {
     this.#board.clearBoard();
     this.#board.preloadCards();
+    this.#progressBar.stop();
     this.#gameStarted = false;
     this.#gameEnded = false;
-    this.#progressBar.stop();
   }
 }

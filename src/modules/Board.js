@@ -2,45 +2,40 @@ import data from '../data/data.js';
 import Shuffle from '../utils/shuffle.js';
 
 /**
- * Manages the logic and state of the memory game board.
+ * Represents the memory game board logic and state.
  */
 export default class Board {
   #container;
   #cardsData;
   #cardFactory;
-  #cards;
-  #flippedCards;
-  #matchedCards;
-  #clickCount;
-  #isGameStarted;
+  #cards = [];
+  #flippedCards = [];
+  #matchedCards = [];
+  #clickCount = 0;
+  #isGameStarted = false;
   #flipSound;
+
   /**
-   * Initializes the board.
-   * @param {HTMLElement} container - The DOM container for the board.
-   * @param {Array} cards - The base card data (one per pair).
-   * @param {Function} cardFactory - A function that returns a card object.
+   * Creates a new Board instance.
+   * @param {HTMLElement} container - DOM element where the board will be rendered.
+   * @param {Array} cards - The base data for cards (each one will be duplicated).
+   * @param {Function} cardFactory - Factory function to create card instances.
    */
   constructor(container, cards, cardFactory) {
     this.#container = container;
     this.#cardsData = [...cards, ...cards];
     this.#cardFactory = cardFactory;
-
-    this.#cards = [];
-    this.#flippedCards = [];
-    this.#matchedCards = [];
-    this.#clickCount = 0;
-    this.#isGameStarted = false;
     this.#flipSound = new Audio('../../../public/sounds/virar.mp3');
   }
 
   /**
-   * Prepares and starts a new game round.
+   * Starts a new game by shuffling and rendering cards.
    */
   init() {
     this.#isGameStarted = true;
     this.clearBoard();
-    const shuffled = this.#shuffleCards(this.#cardsData);
 
+    const shuffled = this.#shuffleCards(this.#cardsData);
     shuffled.forEach(data => {
       const card = this.#createCard(data);
       this.#cards.push(card);
@@ -51,12 +46,12 @@ export default class Board {
   }
 
   /**
-   * Preloads shuffled cards before game starts.
+   * Preloads a shuffled board without triggering gameplay.
    */
   preloadCards() {
     this.clearBoard();
-    const shuffled = this.#shuffleCards(this.#cardsData);
 
+    const shuffled = this.#shuffleCards(this.#cardsData);
     shuffled.forEach(data => {
       const card = this.#createCard(data);
       this.#cards.push(card);
@@ -66,15 +61,7 @@ export default class Board {
   }
 
   /**
-   * Returns the total number of card clicks made.
-   * @returns {number}
-   */
-  getClickCount() {
-    return this.#clickCount;
-  }
-
-  /**
-   * Clears the board state and UI.
+   * Clears the board UI and resets the card array.
    */
   clearBoard() {
     this.#container.innerHTML = '';
@@ -82,9 +69,9 @@ export default class Board {
   }
 
   /**
-   * Creates a card using the factory and binds its event.
-   * @param {Object} cardData - Card face data.
-   * @returns {Object} A card object.
+   * Creates a card instance and attaches a click handler.
+   * @param {Object} cardData - Card-specific data.
+   * @returns {Object} The created card.
    */
   #createCard(cardData) {
     const card = this.#cardFactory(cardData, data);
@@ -95,7 +82,7 @@ export default class Board {
   }
 
   /**
-   * Handles the card flip interaction.
+   * Handles the logic when a card is clicked.
    * @param {Object} card - The clicked card.
    */
   #handleCardClick(card) {
@@ -106,15 +93,13 @@ export default class Board {
     this.#flippedCards.push(card);
     this.#clickCount++;
 
-    //add virar.mp3 sound
     this.#flipSound.currentTime = 0;
     this.#flipSound.play();
-
   }
 
   /**
-   * Updates the visual state of a card.
-   * @param {HTMLElement} cardContainer - The card's container element.
+   * Controls the visual flipping of a card.
+   * @param {HTMLElement} cardContainer - The card DOM element.
    * @param {boolean} showFront - Whether to show the front side.
    */
   flipCard(cardContainer, showFront) {
@@ -122,22 +107,18 @@ export default class Board {
     const back = cardContainer.querySelector('.card_face-back');
 
     if (showFront) {
-      front.classList.remove('card_hidden');
-      front.classList.add('card_appear');
-      back.classList.remove('card_appear');
-      back.classList.add('card_hidden');
+      front.classList.replace('card_hidden', 'card_appear');
+      back.classList.replace('card_appear', 'card_hidden');
     } else {
-      front.classList.remove('card_appear');
-      front.classList.add('card_hidden');
-      back.classList.remove('card_hidden');
-      back.classList.add('card_appear');
+      front.classList.replace('card_appear', 'card_hidden');
+      back.classList.replace('card_hidden', 'card_appear');
     }
   }
 
   /**
-   * Visually animates a shuffle cycle and flips cards back after animation ends.
-   * @param {number} iterations - Number of shuffle rounds.
-   * @param {number} intervalMs - Delay between each shuffle.
+   * Performs a visual shuffle animation and resets unmatched cards.
+   * @param {number} iterations - Number of shuffles.
+   * @param {number} intervalMs - Delay between shuffles.
    */
   animateShuffle(iterations = 10, intervalMs = 200) {
     let current = 0;
@@ -164,17 +145,15 @@ export default class Board {
   }
 
   /**
-   * Updates the container with the current card elements.
+   * Updates the DOM with the current card state.
    */
   updateBoard() {
     this.#container.innerHTML = '';
-    this.#cards.forEach(card => {
-      this.#container.appendChild(card.element);
-    });
+    this.#cards.forEach(card => this.#container.appendChild(card.element));
   }
 
   /**
-   * Reshuffles only unmatched cards, maintaining matched cards in place.
+   * Shuffles only unmatched cards while keeping matched cards in place.
    */
   reshuffleUnmatchedCards() {
     const unmatchedIndices = this.#cards
@@ -184,68 +163,55 @@ export default class Board {
     const unmatchedCards = unmatchedIndices.map(i => this.#cards[i]);
     const shuffled = this.#shuffleCards([...unmatchedCards]);
 
-    const updatedCards = [...this.#cards];
+    const updated = [...this.#cards];
     unmatchedIndices.forEach((index, i) => {
-      updatedCards[index] = shuffled[i];
+      updated[index] = shuffled[i];
     });
 
-    this.#cards = updatedCards;
+    this.#cards = updated;
     this.updateBoard();
   }
 
   /**
-   * Randomly shuffles a card array using the Shuffle utility.
-   * @param {Array} cards - The array to shuffle.
-   * @returns {Array} The shuffled array.
+   * Shuffles a card array using Fisher-Yates algorithm.
+   * @param {Array} cards - Array to shuffle.
+   * @returns {Array} Shuffled array.
    */
   #shuffleCards(cards) {
     return Shuffle.FisherYates(cards);
   }
 
-  /**
-   * returns the flipped cards
-   * @returns {Array} The flipped cards.
-   */
+  /** @returns {Array} The current flipped cards. */
   get flippedCards() {
     return this.#flippedCards;
   }
 
+  /** @param {Array} cards - Sets the flipped cards. */
   set flippedCards(cards) {
     this.#flippedCards = cards;
   }
 
-  /**
-   * returns the matched cards
-   * @returns {Array} The matched cards.
-   */
+  /** @returns {Array} The matched cards. */
   get matchedCards() {
     return this.#matchedCards;
   }
 
+  /** @param {Array} cards - Sets the matched cards. */
   set matchedCards(cards) {
     this.#matchedCards = cards;
   }
 
-  /**
-   * returns the cards
-   * @returns {Array} The cards.
-   */
+  /** @returns {Array} All cards on the board. */
   get cards() {
     return this.#cards;
   }
 
-  /**
-   * returns the card data
-   * @returns {Array} The card data.
-   */
+  /** @returns {Array} The base duplicated card data. */
   get cardsData() {
     return this.#cardsData;
   }
 
-  /**
-   * returns the click count
-   * @returns {number} The click count.
-   */
+  /** @returns {number} The current number of card clicks. */
   get clickCount() {
     return this.#clickCount;
   }
