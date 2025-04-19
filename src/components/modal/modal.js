@@ -1,63 +1,85 @@
+import { createHTMLElement } from '../../utils/HTMLHelpers.js';
 
 /**
- * Modal component for displaying messages to the user.
- * @class Modal
+ * Represents a modal component for displaying user messages.
  */
 export class Modal {
-
-  constructor() {
-    this.createModal();
-  }
+  #modal;
+  #titleElement;
+  #messageElement;
+  #closeButton;
+  #continueButton;
 
   /**
-   * Creates the modal element and appends it to the body.
-   * Sets up event listeners for closing the modal.
+   * Initializes and creates the modal structure.
    */
-  createModal() {
-    this.modal = document.createElement('div');
-    this.modal.classList.add('modal');
-
-    this.modal.innerHTML = `
-    <div class="modal-content">
-      <div class="modal-header">
-        <span class="modal-title">Título</span>
-        <span class="close-btn">&times;</span>
-      </div>
-      <div class="modal-body">
-        <p class="modal-message">Mensagem</p>
-      </div>
-      <div class="modal-footer">
-        <button class="modal-button">Continuar</button>
-      </div>
-    </div>
-  `;
-
-    document.body.appendChild(this.modal);
-
-    this.titleEl = this.modal.querySelector('.modal-title');
-    this.messageEl = this.modal.querySelector('.modal-message');
-    this.closeBtn = this.modal.querySelector('.close-btn');
-    this.continueBtn = this.modal.querySelector('.modal-button');
-
-    this.closeBtn.onclick = () => this.close();
-    this.continueBtn.onclick = () => this.close();
+  constructor() {
+    this.#createModal();
   }
 
   /**
-   * Opens the modal with the given title and message.
-   * @param {string} title - The title to display in the modal.
-   * @param {string} message - The message to display in the modal.
+   * Creates the modal HTML structure and appends it to the document body.
+   */
+  #createModal() {
+    this.#modal = createHTMLElement('div', ['modal']);
+
+    const modalContent = createHTMLElement('div', ['modal-content']);
+
+    const header = createHTMLElement('div', ['modal-header']);
+    this.#titleElement = createHTMLElement('span', ['modal-title'], 'Title');
+    this.#closeButton = createHTMLElement('span', ['close-btn'], '×');
+    header.append(this.#titleElement, this.#closeButton);
+
+    const body = createHTMLElement('div', ['modal-body']);
+    this.#messageElement = createHTMLElement('p', ['modal-message'], 'Message');
+    body.appendChild(this.#messageElement);
+
+    const footer = createHTMLElement('div', ['modal-footer']);
+    this.#continueButton = createHTMLElement('button', ['modal-button'], 'Continue');
+    footer.appendChild(this.#continueButton);
+
+    modalContent.append(header, body, footer);
+    this.#modal.appendChild(modalContent);
+    document.body.appendChild(this.#modal);
+
+    this.#closeButton.onclick = () => this.close();
+    this.#continueButton.onclick = () => this.close();
+  }
+
+  /**
+   * Opens the modal with a given title and message.
+   * @param {string} title - The modal title.
+   * @param {string} message - The modal message.
    */
   open(title, message) {
-    this.titleEl.textContent = title;
-    this.messageEl.textContent = message;
-    this.modal.style.display = 'block';
+    this.#titleElement.textContent = title;
+    this.#messageElement.textContent = message;
+    this.#modal.style.display = 'block';
   }
 
   /**
    * Closes the modal.
    */
   close() {
-    this.modal.style.display = 'none';
+    this.#modal.style.display = 'none';
+  }
+
+  /**
+   * Sets a custom handler for the continue button.
+   * @param {Function} callback - Function to execute on continue.
+   */
+  onContinue(callback) {
+    this.#continueButton.onclick = () => {
+      callback();
+      this.close();
+    };
+  }
+
+  /**
+   * Returns the modal element for advanced manipulation.
+   * @returns {HTMLElement}
+   */
+  get element() {
+    return this.#modal;
   }
 }

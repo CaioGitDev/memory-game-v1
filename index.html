@@ -9,30 +9,39 @@
   <link rel="stylesheet" href="/src/global.css" />
   <link rel="stylesheet" href="src/components/modal/modal.css" />
   <link rel="stylesheet" href="src/components/progressBar/progressBar.css" />
+  <link rel="stylesheet" href="src/components/game-history/game-history.css" />
 
   <title>Memory Game</title>
 </head>
 
 <body>
-  <header>
-    <span>
-      <h1 class="title">JOGO DA MEMORIA</h1>
-      <h1 class="title">UEFA EURO 2016</h1>
-    </span>
-  </header>
-  <div id="app"></div>
-  <div class="start-game-container">
-    <div class="start-game-text">
-      <button id="btn-start-restart" class="btn btn-restart">
-        <span>Reiniciar</span>  
-      </button>
-
-      <button id="btn-start-game" class="start-game-button btn btn-start">
-        <span>START GAME</span>  
-      </button>
-    
+  <div class="column">
+    <div id="history" class="history-container">
     </div>
   </div>
+  <div class="column">
+    <header>
+      <span>
+        <h1 class="title">JOGO DA MEMORIA</h1>
+        <h1 class="title">UEFA EURO 2016</h1>
+      </span>
+    </header>
+    <div id="app"></div>
+    <div class="start-game-container">
+      <div class="start-game-text">
+        <button id="btn-start-game" class="start-game-button btn btn-start">
+          <span>START GAME</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="column">
+
+    </div>
+
+
+
+
   <script type="module" src="/src/main.js"></script>
 </body>
 
